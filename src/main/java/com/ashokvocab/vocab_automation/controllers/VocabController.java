@@ -10,6 +10,6 @@ public class VocabController {
 
     @GetMapping("/test")
     public String test(){
-        return "Hello from Spring Boot !!!";
+        return "Hello from Spring Boot !!";
     }
 }
