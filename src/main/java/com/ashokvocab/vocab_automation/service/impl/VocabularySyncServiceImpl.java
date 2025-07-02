@@ -1,0 +1,175 @@
+package com.ashokvocab.vocab_automation.service.impl;
+
+    import com.ashokvocab.vocab_automation.service.*;
+    import org.slf4j.Logger;
+    import org.slf4j.LoggerFactory;
+    import org.springframework.stereotype.Service;
+    import org.apache.poi.xwpf.usermodel.XWPFDocument;
+    import java.io.ByteArrayInputStream;
+    import java.util.*;
+    import java.util.stream.Collectors;
+    import com.ashokvocab.vocab_automation.model.*;
+    @Service
+    public class VocabularySyncServiceImpl implements VocabularySyncService {
+
+        private final SoftwareVocabularyService softwareService;
+        private final StockmarketVocabularyService stockmarketService;
+        private final TravelVocabularyService travelService;
+        private final GoogleDriveService googleDriveService;
+        private final RacingVocabularyService racingService;
+        private final PodcastVocabularyService podcastService;
+        private final PersonalVocabularyService personalService;
+        private final GeneralVocabularyService generalService;
+        private static final Logger logger = LoggerFactory.getLogger(VocabularySyncServiceImpl.class);
+
+        public VocabularySyncServiceImpl(
+                SoftwareVocabularyService softwareService,
+                StockmarketVocabularyService stockmarketService,
+                TravelVocabularyService travelService,
+                GoogleDriveService googleDriveService,
+                RacingVocabularyService racingService,
+                PodcastVocabularyService podcastService,
+                PersonalVocabularyService personalService,
+                GeneralVocabularyService generalService
+        ) {
+            this.softwareService = softwareService;
+            this.stockmarketService = stockmarketService;
+            this.travelService = travelService;
+            this.googleDriveService = googleDriveService;
+            this.racingService = racingService;
+            this.podcastService = podcastService;
+            this.personalService = personalService;
+            this.generalService = generalService;
+        }
+
+@Override
+public void syncAllVocabularies() {
+    var files = googleDriveService.getDocFiles();
+
+    for (var file : files) {
+        var inputStream = googleDriveService.downloadDocx(file.getId());
+        var vocabularies = parseVocabFile(inputStream);
+
+        if (file.getName().toLowerCase().contains("software")) {
+            List<SoftwareVocabulary> existing = softwareService.findAll();
+            Set<String> existingWords = existing.stream()
+                .map(SoftwareVocabulary::getWord)
+                .collect(Collectors.toSet());
+            List<SoftwareVocabulary> newWords = vocabularies.stream()
+                .map(v -> new SoftwareVocabulary(v.getWord(), v.getMeaning()))
+                .filter(v -> !existingWords.contains(v.getWord()))
+                .collect(Collectors.toList());
+            logger.info("Inserting Software words: {}", newWords.stream().map(SoftwareVocabulary::getWord).collect(Collectors.toList()));
+            softwareService.saveAll(newWords);
+
+        } else if (file.getName().toLowerCase().contains("stockmarket")) {
+            List<StockmarketVocabulary> existing = stockmarketService.findAll();
+            Set<String> existingWords = existing.stream()
+                .map(StockmarketVocabulary::getWord)
+                .collect(Collectors.toSet());
+            List<StockmarketVocabulary> newWords = vocabularies.stream()
+                .map(v -> new StockmarketVocabulary(v.getWord(), v.getMeaning()))
+                .filter(v -> !existingWords.contains(v.getWord()))
+                .collect(Collectors.toList());
+            logger.info("Inserting Stockmarket words: {}", newWords.stream().map(StockmarketVocabulary::getWord).collect(Collectors.toList()));
+            stockmarketService.saveAll(newWords);
+
+        } else if (file.getName().toLowerCase().contains("travel")) {
+            List<TravelVocabulary> existing = travelService.findAll();
+            Set<String> existingWords = existing.stream()
+                .map(TravelVocabulary::getWord)
+                .collect(Collectors.toSet());
+            List<TravelVocabulary> newWords = vocabularies.stream()
+                .map(v -> new TravelVocabulary(v.getWord(), v.getMeaning()))
+                .filter(v -> !existingWords.contains(v.getWord()))
+                .collect(Collectors.toList());
+            logger.info("Inserting Travel words: {}", newWords.stream().map(TravelVocabulary::getWord).collect(Collectors.toList()));
+            travelService.saveAll(newWords);
+
+        } else if (file.getName().toLowerCase().contains("racing")) {
+            List<RacingVocabulary> existing = racingService.findAll();
+            Set<String> existingWords = existing.stream()
+                .map(RacingVocabulary::getWord)
+                .collect(Collectors.toSet());
+            List<RacingVocabulary> newWords = vocabularies.stream()
+                .map(v -> new RacingVocabulary(v.getWord(), v.getMeaning()))
+                .filter(v -> !existingWords.contains(v.getWord()))
+                .collect(Collectors.toList());
+            logger.info("Inserting Racing words: {}", newWords.stream().map(RacingVocabulary::getWord).collect(Collectors.toList()));
+            racingService.saveAll(newWords);
+
+        } else if (file.getName().toLowerCase().contains("podcast")) {
+            List<PodcastVocabulary> existing = podcastService.findAll();
+            Set<String> existingWords = existing.stream()
+                .map(PodcastVocabulary::getWord)
+                .collect(Collectors.toSet());
+            List<PodcastVocabulary> newWords = vocabularies.stream()
+                .map(v -> new PodcastVocabulary(v.getWord(), v.getMeaning()))
+                .filter(v -> !existingWords.contains(v.getWord()))
+                .collect(Collectors.toList());
+            logger.info("Inserting Podcast words: {}", newWords.stream().map(PodcastVocabulary::getWord).collect(Collectors.toList()));
+            podcastService.saveAll(newWords);
+
+        } else if (file.getName().toLowerCase().contains("personal")) {
+            List<PersonalVocabulary> existing = personalService.findAll();
+            Set<String> existingWords = existing.stream()
+                .map(PersonalVocabulary::getWord)
+                .collect(Collectors.toSet());
+            List<PersonalVocabulary> newWords = vocabularies.stream()
+                .map(v -> new PersonalVocabulary(v.getWord(), v.getMeaning()))
+                .filter(v -> !existingWords.contains(v.getWord()))
+                .collect(Collectors.toList());
+            logger.info("Inserting Personal words: {}", newWords.stream().map(PersonalVocabulary::getWord).collect(Collectors.toList()));
+            personalService.saveAll(newWords);
+
+        } else if (file.getName().toLowerCase().contains("general")) {
+            List<GeneralVocabulary> existing = generalService.findAll();
+            Set<String> existingWords = existing.stream()
+                .map(GeneralVocabulary::getWord)
+                .collect(Collectors.toSet());
+            List<GeneralVocabulary> newWords = vocabularies.stream()
+                .map(v -> new GeneralVocabulary(v.getWord(), v.getMeaning()))
+                .filter(v -> !existingWords.contains(v.getWord()))
+                .collect(Collectors.toList());
+            logger.info("Inserting General words: {}", newWords.stream().map(GeneralVocabulary::getWord).collect(Collectors.toList()));
+            generalService.saveAll(newWords);
+        }
+    }
+}
+
+        public List<Vocabulary> parseVocabFile(byte[] docxBytes) {
+            List<Vocabulary> wordMeanings = new ArrayList<>();
+            try (XWPFDocument doc = new XWPFDocument(new ByteArrayInputStream(docxBytes))) {
+                List<String> lines = doc.getParagraphs().stream()
+                    .map(p -> p.getText().trim())
+                    .filter(line -> !line.isEmpty())
+                    .collect(Collectors.toList());
+
+                for (String line : lines) {
+                    String cleanLine = line.trim();
+                    if (cleanLine.isEmpty()) continue;
+                    if (!cleanLine.contains(":")) continue;
+                    if (cleanLine.chars().filter(ch -> ch == '-').count() > 5) continue;
+
+                    String[] parts = cleanLine.split(":", 2);
+                    if (parts.length < 2) continue;
+                    String word = parts[0].trim();
+                    String meaning = parts[1].trim();
+
+                    if (!word.isEmpty() && !meaning.isEmpty()) {
+                        wordMeanings.add(new Vocabulary(word, meaning));
+                    }
+                }
+
+                // Remove duplicates, keep last meaning for each word
+                Map<String, Vocabulary> map = new LinkedHashMap<>();
+                for (Vocabulary v : wordMeanings) {
+                    map.put(v.getWord().toLowerCase(), v);
+                }
+                wordMeanings = new ArrayList<>(map.values());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return wordMeanings;
+        }
+    }
