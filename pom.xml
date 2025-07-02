@@ -11,7 +11,7 @@
 	<groupId>com.ashokvocab</groupId>
 	<artifactId>vocab-automation-java</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>vocab-automation</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
