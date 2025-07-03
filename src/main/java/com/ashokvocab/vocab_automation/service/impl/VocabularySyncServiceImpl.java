@@ -239,4 +239,45 @@ public void syncIndividualTablesFromDrive() {
             return masterVocabularyRepository.findAll();
         }
 
+        @Override
+        public List<VocabularyDTO> getVocabularyByTable(String table) {
+            switch (table) {
+                case "software":
+                    return softwareService.findAll().stream()
+                        .map(v -> new VocabularyDTO(v.getWord(), v.getMeaning()) {
+                        })
+                        .collect(Collectors.toList());
+                case "stockmarket":
+                    return stockmarketService.findAll().stream()
+                        .map(v -> new VocabularyDTO(v.getWord(), v.getMeaning()))
+                        .collect(Collectors.toList());
+                case "travel":
+                    return travelService.findAll().stream()
+                        .map(v -> new VocabularyDTO(v.getWord(), v.getMeaning()))
+                        .collect(Collectors.toList());
+                case "racing":
+                    return racingService.findAll().stream()
+                        .map(v -> new VocabularyDTO(v.getWord(), v.getMeaning()))
+                        .collect(Collectors.toList());
+                case "podcast":
+                    return podcastService.findAll().stream()
+                        .map(v -> new VocabularyDTO(v.getWord(), v.getMeaning()))
+                        .collect(Collectors.toList());
+                case "personal":
+                    return personalService.findAll().stream()
+                        .map(v -> new VocabularyDTO(v.getWord(), v.getMeaning()))
+                        .collect(Collectors.toList());
+                case "general":
+                    return generalService.findAll().stream()
+                        .map(v -> new VocabularyDTO(v.getWord(), v.getMeaning()))
+                        .collect(Collectors.toList());
+                case "master":
+                    return masterVocabularyRepository.findAll().stream()
+                        .map(v -> new VocabularyDTO(v.getWord(), v.getMeaning()))
+                        .collect(Collectors.toList());
+                default:
+                    throw new IllegalArgumentException("Unknown table: " + table);
+            }
+        }
+
     }
