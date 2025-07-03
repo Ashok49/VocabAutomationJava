@@ -1,8 +1,11 @@
 package com.ashokvocab.vocab_automation.controllers;
 
+import com.ashokvocab.vocab_automation.model.MasterVocabulary;
 import com.ashokvocab.vocab_automation.service.VocabularySyncService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -22,10 +25,19 @@ public class VocabController {
     }
 
     @PostMapping("/sync")
-    public String syncAll() {
-        //CompletableFuture<Void> future = CompletableFuture.runAsync(vocabularySyncService::syncAllVocabularies);
-        //future.join();
-        vocabularySyncService.syncAllVocabularies();
-        return "All vocabularies synced";
+    public String syncIndividualTables() {
+        vocabularySyncService.syncIndividualTablesFromDrive();
+        return "Individual tables synced from Drive";
+    }
+
+    @PostMapping("/sync-master")
+    public String syncMasterTable() {
+        vocabularySyncService.syncMasterTableFromIndividualTables();
+        return "Master table synced from individual tables";
+    }
+
+    @GetMapping("/all")
+    public List<MasterVocabulary> getAllWords() {
+        return vocabularySyncService.getAllWords();
     }
 }

@@ -1,14 +1,19 @@
 package com.ashokvocab.vocab_automation.service.impl;
 
+    import com.ashokvocab.vocab_automation.repository.MasterVocabularyRepository;
     import com.ashokvocab.vocab_automation.service.*;
     import org.slf4j.Logger;
     import org.slf4j.LoggerFactory;
+    import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.stereotype.Service;
     import org.apache.poi.xwpf.usermodel.XWPFDocument;
     import java.io.ByteArrayInputStream;
+    import java.time.LocalDateTime;
     import java.util.*;
     import java.util.stream.Collectors;
     import com.ashokvocab.vocab_automation.model.*;
+    import java.time.LocalDateTime;
+
     @Service
     public class VocabularySyncServiceImpl implements VocabularySyncService {
 
@@ -21,6 +26,9 @@ package com.ashokvocab.vocab_automation.service.impl;
         private final PersonalVocabularyService personalService;
         private final GeneralVocabularyService generalService;
         private static final Logger logger = LoggerFactory.getLogger(VocabularySyncServiceImpl.class);
+
+        @Autowired
+        private MasterVocabularyRepository masterVocabularyRepository;
 
         public VocabularySyncServiceImpl(
                 SoftwareVocabularyService softwareService,
@@ -43,7 +51,7 @@ package com.ashokvocab.vocab_automation.service.impl;
         }
 
 @Override
-public void syncAllVocabularies() {
+public void syncIndividualTablesFromDrive() {
     var files = googleDriveService.getDocFiles();
 
     for (var file : files) {
@@ -172,4 +180,63 @@ public void syncAllVocabularies() {
             }
             return wordMeanings;
         }
+
+        @Override
+        public void syncMasterTableFromIndividualTables() {
+            List<MasterVocabulary> allMasterVocabularies = new ArrayList<>();
+
+            softwareService.findAll().forEach(v ->
+                allMasterVocabularies.add(new MasterVocabulary(v.getWord(), v.getMeaning(), "software"))
+            );
+            stockmarketService.findAll().forEach(v ->
+                allMasterVocabularies.add(new MasterVocabulary(v.getWord(), v.getMeaning(), "stockmarket"))
+            );
+            travelService.findAll().forEach(v ->
+                allMasterVocabularies.add(new MasterVocabulary(v.getWord(), v.getMeaning(), "travel"))
+            );
+            racingService.findAll().forEach(v ->
+                allMasterVocabularies.add(new MasterVocabulary(v.getWord(), v.getMeaning(), "racing"))
+            );
+            podcastService.findAll().forEach(v ->
+                allMasterVocabularies.add(new MasterVocabulary(v.getWord(), v.getMeaning(), "podcast"))
+            );
+            personalService.findAll().forEach(v ->
+                allMasterVocabularies.add(new MasterVocabulary(v.getWord(), v.getMeaning(), "personal"))
+            );
+            generalService.findAll().forEach(v ->
+                allMasterVocabularies.add(new MasterVocabulary(v.getWord(), v.getMeaning(), "general"))
+            );
+
+            saveOrUpdateWords(allMasterVocabularies);
+        }
+
+
+        @Override
+        public void saveOrUpdateWords(List<MasterVocabulary> vocabularies) {
+            Map<String, MasterVocabulary> uniqueWords = new LinkedHashMap<>();
+            for (MasterVocabulary vocab : vocabularies) {
+                String wordLower = vocab.getWord().toLowerCase();
+                String meaningLower = vocab.getMeaning() != null ? vocab.getMeaning().toLowerCase() : null;
+                MasterVocabulary lowerVocab = new MasterVocabulary(wordLower, meaningLower, vocab.getSourceTable());
+                uniqueWords.put(wordLower, lowerVocab); // last occurrence wins
+            }
+            List<MasterVocabulary> toSave = new ArrayList<>();
+            for (MasterVocabulary vocab : uniqueWords.values()) {
+                Optional<MasterVocabulary> existing = masterVocabularyRepository.findByWord(vocab.getWord());
+                MasterVocabulary entity = existing.orElse(new MasterVocabulary());
+                entity.setWord(vocab.getWord());
+                entity.setMeaning(vocab.getMeaning());
+                entity.setSourceTable(vocab.getSourceTable());
+                entity.setCreatedDate(LocalDateTime.now());
+                toSave.add(entity);
+            }
+            masterVocabularyRepository.saveAll(toSave);
+        }
+
+
+        @Override
+        public List<MasterVocabulary> getAllWords() {
+            return masterVocabularyRepository.findAll();
+        }
+
     }
