@@ -49,7 +49,7 @@ public class VocabController {
         return vocabularySyncService.getVocabularyByTable(table.toLowerCase());
     }
 
-@PostMapping("/process/{table}")
+@PostMapping("/send-batch/{table}")
 public ResponseEntity<?> processVocabularyBatch(@PathVariable String table) {
     try {
         vocabularyProcessingService.processVocabularyBatch(table.toLowerCase());
@@ -59,14 +59,5 @@ public ResponseEntity<?> processVocabularyBatch(@PathVariable String table) {
             .body("Error processing batch: " + e.getMessage());
     }
 }
-
-    //Get 10 words given a table name.. find the offset value frm prev day...
-    //Check if the words are already delivered today.. if delivered check the run table (SELECT * FROM public.daily_vocab_batches
-    //Integrate with open ai to get stories for the words
-    //Integrate with open to get audio for the stories generated
-    //Save both pds and audio to s3 seperate buckets
-    //save the run to the table..
-    //Send email with pdf
-    //Trigger twilio call with audio
 
 }

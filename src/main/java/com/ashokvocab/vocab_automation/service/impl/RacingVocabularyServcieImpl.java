@@ -5,6 +5,8 @@ import com.ashokvocab.vocab_automation.model.RacingVocabulary;
 import com.ashokvocab.vocab_automation.repository.RacingVocabularyRepository;
 import com.ashokvocab.vocab_automation.service.RacingVocabularyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,5 +46,10 @@ public class RacingVocabularyServcieImpl implements RacingVocabularyService {
     @Override
     public List<RacingVocabulary> saveAll(List<RacingVocabulary> vocabularies) {
         return racingVocabularyRepository.saveAll(vocabularies);
+    }
+
+    @Override
+    public Page<RacingVocabulary> findAll(Pageable pageable) {
+        return racingVocabularyRepository.findAll(pageable);
     }
 }

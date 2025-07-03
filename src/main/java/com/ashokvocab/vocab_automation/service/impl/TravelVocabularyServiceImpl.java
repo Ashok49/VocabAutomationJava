@@ -4,6 +4,8 @@
         import com.ashokvocab.vocab_automation.model.TravelVocabulary;
         import com.ashokvocab.vocab_automation.repository.TravelVocabularyRepository;
         import com.ashokvocab.vocab_automation.service.TravelVocabularyService;
+        import org.springframework.data.domain.Page;
+        import org.springframework.data.domain.Pageable;
         import org.springframework.stereotype.Service;
 
         import java.util.List;
@@ -20,6 +22,11 @@
             @Override
             public List<TravelVocabulary> findAll() {
                 return repository.findAll();
+            }
+
+            @Override
+            public Page<TravelVocabulary> findAll(Pageable pageable) {
+                return repository.findAll(pageable);
             }
 
             @Override

@@ -53,6 +53,15 @@ public class VocabularyProcessingServiceImpl implements VocabularyProcessingServ
     @Override
     @Transactional
     public void processVocabularyBatch(String tableName) {
+
+        //Get 10 words given a table name.. find the offset value frm prev day...
+        //Check if the words are already delivered today.. if delivered check the run table (SELECT * FROM public.daily_vocab_batches
+        //Call open ai to get stories for the words
+        //Call open ai to get audio for the stories generated
+        //Save both pds and audio to s3 seperate buckets
+        //save the run to the table..
+        //Send email with pdf
+        //Trigger twilio call with audio
         LocalDate today = LocalDate.now();
         Optional<DailyVocabBatch> todaysBatch = batchRepository.findByTableNameAndRunDate(tableName, today);
 
@@ -69,7 +78,6 @@ public class VocabularyProcessingServiceImpl implements VocabularyProcessingServ
                     offset = (batchOffset != null) ? batchOffset.intValue() : 0;
                 }
 
-                String tableName1 ="software";
                 // Get 10 words from vocabulary table using offset
                 List<VocabularyDTO> words = vocabularySyncService.getVocabularyByTable(tableName, offset, 10);
 
