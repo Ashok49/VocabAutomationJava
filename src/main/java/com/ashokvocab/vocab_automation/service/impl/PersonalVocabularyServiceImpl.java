@@ -4,6 +4,8 @@ import com.ashokvocab.vocab_automation.model.PersonalVocabulary;
 import com.ashokvocab.vocab_automation.repository.PersonalVocabularyRepository;
 import com.ashokvocab.vocab_automation.service.PersonalVocabularyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +20,15 @@ public class PersonalVocabularyServiceImpl implements PersonalVocabularyService 
     @Override
     public List<PersonalVocabulary> findAll() {
         return personalVocabularyRepository.findAll();
+    }
+
+    @Override
+    public Page<PersonalVocabulary> findAll(Pageable pageable) {
+        try {
+            return personalVocabularyRepository.findAll(pageable);
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching paginated personal vocabularies", e);
+        }
     }
 
     @Override

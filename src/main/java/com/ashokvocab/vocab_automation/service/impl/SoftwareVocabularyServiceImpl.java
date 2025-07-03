@@ -4,6 +4,8 @@ import com.ashokvocab.vocab_automation.exception.VocabAutomationException;
 import com.ashokvocab.vocab_automation.model.SoftwareVocabulary;
 import com.ashokvocab.vocab_automation.repository.SoftwareVocabularyRepository;
 import com.ashokvocab.vocab_automation.service.SoftwareVocabularyService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +23,15 @@ public class SoftwareVocabularyServiceImpl implements SoftwareVocabularyService 
     @Override
     public List<SoftwareVocabulary> findAll() {
         return repository.findAll();
+    }
+
+    @Override
+    public Page<SoftwareVocabulary> findAll(Pageable pageable) {
+        try {
+            return repository.findAll(pageable);
+        } catch (Exception e) {
+            throw new VocabAutomationException("Error fetching paginated software vocabularies", e);
+        }
     }
 
     @Override

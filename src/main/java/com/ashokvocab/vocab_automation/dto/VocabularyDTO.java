@@ -1,8 +1,13 @@
 // VocabularyDTO.java
-package com.ashokvocab.vocab_automation.model;
+package com.ashokvocab.vocab_automation.dto;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class VocabularyDTO {
+    @JsonProperty("Word")
     private String word;
+
+    @JsonProperty("Meaning")
     private String meaning;
 
     public VocabularyDTO(String word, String meaning) {

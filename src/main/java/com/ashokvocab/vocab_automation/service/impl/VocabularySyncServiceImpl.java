@@ -1,5 +1,6 @@
 package com.ashokvocab.vocab_automation.service.impl;
 
+    import com.ashokvocab.vocab_automation.dto.VocabularyDTO;
     import com.ashokvocab.vocab_automation.repository.MasterVocabularyRepository;
     import com.ashokvocab.vocab_automation.service.*;
     import org.slf4j.Logger;
@@ -12,7 +13,9 @@ package com.ashokvocab.vocab_automation.service.impl;
     import java.util.*;
     import java.util.stream.Collectors;
     import com.ashokvocab.vocab_automation.model.*;
-    import java.time.LocalDateTime;
+    import org.springframework.data.domain.Page;
+    import org.springframework.data.domain.PageRequest;
+    import org.springframework.data.domain.Pageable;
 
     @Service
     public class VocabularySyncServiceImpl implements VocabularySyncService {
@@ -279,5 +282,73 @@ public void syncIndividualTablesFromDrive() {
                     throw new IllegalArgumentException("Unknown table: " + table);
             }
         }
+
+       @Override
+        public List<VocabularyDTO> getVocabularyByTable(String table, int offset, int limit) {
+            Pageable pageable = PageRequest.of(offset/limit, limit);
+            List<VocabularyDTO> result = switch (table) {
+                case "software_vocabulary" -> softwareService.findAll(pageable)
+                    .stream()
+                    .map(v -> (SoftwareVocabulary) v)
+                    .map(v -> new VocabularyDTO(v.getWord(), v.getMeaning()))
+                    .collect(Collectors.toList());
+
+                case "stockmarket_vocabulary" -> stockmarketService.findAll(pageable)
+                    .stream()
+                    .map(v -> (StockmarketVocabulary) v)
+                    .map(v -> new VocabularyDTO(v.getWord(), v.getMeaning()))
+                    .collect(Collectors.toList());
+
+                case "travel_vocabulary" -> travelService.findAll(pageable)
+                    .stream()
+                    .map(v -> (TravelVocabulary) v)
+                    .map(v -> new VocabularyDTO(v.getWord(), v.getMeaning()))
+                    .collect(Collectors.toList());
+
+                case "racing_vocabulary" -> racingService.findAll(pageable)
+                    .stream()
+                    .map(v -> (RacingVocabulary) v)
+                    .map(v -> new VocabularyDTO(v.getWord(), v.getMeaning()))
+                    .collect(Collectors.toList());
+
+                case "podcast_vocabulary" -> podcastService.findAll(pageable)
+                    .stream()
+                    .map(v -> (PodcastVocabulary) v)
+                    .map(v -> new VocabularyDTO(v.getWord(), v.getMeaning()))
+                    .collect(Collectors.toList());
+
+                case "personal_vocabulary" -> personalService.findAll(pageable)
+                    .stream()
+                    .map(v -> (PersonalVocabulary) v)
+                    .map(v -> new VocabularyDTO(v.getWord(), v.getMeaning()))
+                    .collect(Collectors.toList());
+
+                case "general_vocabulary" -> generalService.findAll(pageable)
+                    .stream()
+                    .map(v -> (GeneralVocabulary) v)
+                    .map(v -> new VocabularyDTO(v.getWord(), v.getMeaning()))
+                    .collect(Collectors.toList());
+
+                case "master_vocabulary" -> masterVocabularyRepository.findAll(pageable)
+                    .stream()
+                    .map(v -> (MasterVocabulary) v)
+                    .map(v -> new VocabularyDTO(v.getWord(), v.getMeaning()))
+                    .collect(Collectors.toList());
+
+                default -> throw new IllegalArgumentException("Unknown table: " + table);
+            };
+
+            return result;
+        }
+
+    //Get 10 words given a table name.. find the offset value frm prev day...
+    //Check if the words are already delivered today.. if delivered check the run table (SELECT * FROM public.daily_vocab_batches
+    //Integrate with open ai to get stories for the words
+    //Integrate with open to get audio for the stories generated
+    //Save both pds and audio to s3 seperate buckets
+    //save the run to the table..
+    //Send email with pdf
+    //Trigger twilio call with audio
+
 
     }

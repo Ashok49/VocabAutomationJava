@@ -5,6 +5,8 @@ import com.ashokvocab.vocab_automation.model.StockmarketVocabulary;
 import com.ashokvocab.vocab_automation.repository.StockmarketVocabularyRepository;
 import com.ashokvocab.vocab_automation.service.StockmarketVocabularyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +21,15 @@ public class StockmarketVocabularyServiceImpl implements StockmarketVocabularySe
     @Override
     public List<StockmarketVocabulary> findAll() {
         return stockmarketVocabularyRepository.findAll();
+    }
+
+    @Override
+    public Page<StockmarketVocabulary> findAll(Pageable pageable) {
+        try {
+            return stockmarketVocabularyRepository.findAll(pageable);
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching paginated stock market vocabularies", e);
+        }
     }
 
     @Override

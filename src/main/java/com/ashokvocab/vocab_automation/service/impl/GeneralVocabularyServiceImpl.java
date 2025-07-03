@@ -3,6 +3,8 @@ package com.ashokvocab.vocab_automation.service.impl;
 import com.ashokvocab.vocab_automation.model.GeneralVocabulary;
 import com.ashokvocab.vocab_automation.repository.GeneralVocabularyRepository;
 import com.ashokvocab.vocab_automation.service.GeneralVocabularyService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +22,11 @@ public class GeneralVocabularyServiceImpl implements GeneralVocabularyService {
     @Override
     public List<GeneralVocabulary> findAll() {
         return generalVocabularyRepository.findAll();
+    }
+
+    @Override
+    public Page<GeneralVocabulary> findAll(Pageable pageable) {
+        return generalVocabularyRepository.findAll(pageable);
     }
 
     @Override
