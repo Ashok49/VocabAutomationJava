@@ -6,10 +6,14 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/telegram")
 public class TelegramController {
+
+    private static final Logger logger = LoggerFactory.getLogger(TelegramController.class);
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -27,6 +31,7 @@ public class TelegramController {
 
         Long chatId = message.getChat().getId();
         String messageText = message.getText().trim();
+        logger.info("Received Telegram request: chatId={}, text='{}'", chatId, messageText);
         String responseText;
 
         if ("/sync".equalsIgnoreCase(messageText)) {
@@ -35,6 +40,7 @@ public class TelegramController {
         } else if (messageText.toLowerCase().startsWith("/batch")) {
             String[] parts = messageText.split("\\s+");
             String tableName = parts.length >= 2 ? parts[1] : "general_vocabulary";
+            logger.info("Preparing to trigger batch for table: {} at URL: {}", tableName, baseUrl + "/api/vocab/send-batch/" + tableName);
             triggerInternalApi(baseUrl + "/api/vocab/send-batch/" + tableName, HttpMethod.POST);
             responseText = "✅ Batch sent for `" + tableName + "`.";
         } else {
@@ -46,6 +52,7 @@ public class TelegramController {
     }
 
     private void triggerInternalApi(String url, HttpMethod method) {
+        logger.info("Triggering internal API: {} {}", method, url);
         HttpEntity<Void> request = new HttpEntity<>(null);
         restTemplate.exchange(url, method, request, String.class);
     }
