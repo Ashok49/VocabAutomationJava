@@ -39,8 +39,7 @@ public class TelegramController {
             responseText = "✅ Sync triggered.";
         } else if (messageText.toLowerCase().startsWith("/batch")) {
             String[] parts = messageText.split("\\s+");
-            String tableName = parts.length >= 2 ? parts[1] : "general_vocabulary";
-            logger.info("Preparing to trigger batch for table: {} at URL: {}", tableName, baseUrl + "/api/vocab/send-batch/" + tableName);
+            String tableName = parts.length >= 2 ? String.join(" ", java.util.Arrays.copyOfRange(parts, 1, parts.length)) : "general_vocabulary";            logger.info("Preparing to trigger batch for table: {} at URL: {}", tableName, baseUrl + "/api/vocab/send-batch/" + tableName);
             triggerInternalApi(baseUrl + "/api/vocab/send-batch/" + tableName, HttpMethod.POST);
             responseText = "✅ Batch sent for `" + tableName + "`.";
         } else {
