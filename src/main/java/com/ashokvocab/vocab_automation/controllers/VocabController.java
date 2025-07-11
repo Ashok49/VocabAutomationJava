@@ -44,9 +44,21 @@ public class VocabController {
         return vocabularySyncService.getAllWords();
     }
 
-    @GetMapping("/table/{table}")
-    public List<VocabularyDTO> getVocabularyByTable(@PathVariable String table) {
-        return vocabularySyncService.getVocabularyByTable(table.toLowerCase());
+
+    @GetMapping("/today")
+    public ResponseEntity<?> getTodaysVocabulary() {
+        try {
+            List<VocabularyDTO> todaysVocabulary = vocabularySyncService.getVocabularyByTable("software_vocabulary", 0, 10);
+            return ResponseEntity.ok(todaysVocabulary);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error fetching today's vocabulary: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/category/{name}")
+    public List<VocabularyDTO> getVocabularyByTable(@PathVariable String name) {
+        return vocabularySyncService.getVocabularyByTable(name.toLowerCase());
     }
 
 @PostMapping("/send-batch/{table}")

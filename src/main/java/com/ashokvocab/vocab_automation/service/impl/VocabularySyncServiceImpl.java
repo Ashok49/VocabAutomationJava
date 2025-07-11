@@ -274,7 +274,7 @@ public void syncIndividualTablesFromDrive() {
                     return generalService.findAll().stream()
                         .map(v -> new VocabularyDTO(v.getWord(), v.getMeaning()))
                         .collect(Collectors.toList());
-                case "master":
+                case "all":
                     return masterVocabularyRepository.findAll().stream()
                         .map(v -> new VocabularyDTO(v.getWord(), v.getMeaning()))
                         .collect(Collectors.toList());
