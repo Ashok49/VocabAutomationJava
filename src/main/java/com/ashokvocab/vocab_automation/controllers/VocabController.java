@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import com.ashokvocab.vocab_automation.dto.VocabularyDTO;
 import org.springframework.http.HttpStatus;
 import java.util.List;
+import com.ashokvocab.vocab_automation.dto.PaginatedVocabularyResponse;
 
 @RestController
 @RequestMapping("/api/vocab")
@@ -42,6 +43,19 @@ public class VocabController {
     @GetMapping("/all")
     public List<MasterVocabulary> getAllWords() {
         return vocabularySyncService.getAllWords();
+    }
+
+    @GetMapping("/all-paginated")
+    public ResponseEntity<PaginatedVocabularyResponse> getAllWordsPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            PaginatedVocabularyResponse response = vocabularySyncService.getAllWordsPaginated(page, size);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(null);
+        }
     }
 
 

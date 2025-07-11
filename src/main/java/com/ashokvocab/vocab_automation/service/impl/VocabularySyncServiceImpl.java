@@ -1,5 +1,6 @@
 package com.ashokvocab.vocab_automation.service.impl;
 
+    import com.ashokvocab.vocab_automation.dto.PaginatedVocabularyResponse;
     import com.ashokvocab.vocab_automation.dto.VocabularyDTO;
     import com.ashokvocab.vocab_automation.repository.MasterVocabularyRepository;
     import com.ashokvocab.vocab_automation.service.*;
@@ -240,6 +241,23 @@ public void syncIndividualTablesFromDrive() {
         @Override
         public List<MasterVocabulary> getAllWords() {
             return masterVocabularyRepository.findAll();
+        }
+
+        @Override
+        public PaginatedVocabularyResponse getAllWordsPaginated(int page, int size) {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<MasterVocabulary> vocabPage = masterVocabularyRepository.findAll(pageable);
+
+            PaginatedVocabularyResponse response = new PaginatedVocabularyResponse();
+            response.setContent(
+                vocabPage.getContent().stream()
+                    .map(v -> new VocabularyDTO(v.getWord(), v.getMeaning()))
+                    .collect(Collectors.toList())
+            );
+            response.setPage(vocabPage.getNumber());
+            response.setTotalPages(vocabPage.getTotalPages());
+            response.setTotalElements(vocabPage.getTotalElements());
+            return response;
         }
 
         @Override
