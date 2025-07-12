@@ -1,6 +1,7 @@
 package com.ashokvocab.vocab_automation.service;
 
 import com.ashokvocab.vocab_automation.dto.PaginatedVocabularyResponse;
+import com.ashokvocab.vocab_automation.dto.TodayVocabularyResponse;
 import com.ashokvocab.vocab_automation.dto.VocabularyDTO;
 import com.ashokvocab.vocab_automation.model.MasterVocabulary;
 
@@ -16,6 +17,8 @@ public interface VocabularySyncService {
     PaginatedVocabularyResponse getAllWordsPaginated(int page, int limit);
 
     List<VocabularyDTO> getVocabularyByTable(String table);
+
+    TodayVocabularyResponse getTodayVocabulary();
 
     List<VocabularyDTO> getVocabularyByTable(String table, int offset, int limit);
 

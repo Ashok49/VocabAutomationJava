@@ -63,4 +63,28 @@ public class S3Service {
         }
         throw new VocabAutomationException("Unsupported content type: " + contentType);
     }
+
+    public byte[] downloadFile(String fileUrlOrKey) {
+        String bucketName;
+        String key;
+
+        // If fileUrl is a full S3 URL, extract bucket and key
+        if (fileUrlOrKey.startsWith("https://")) {
+            // Example: https://bucket-name.s3.amazonaws.com/key
+            String[] parts = fileUrlOrKey.replace("https://", "").split("\\.s3\\.amazonaws\\.com/");
+            bucketName = parts[0];
+            key = parts[1];
+        } else {
+            // Assume key is provided, use pdfBucketName by default
+            bucketName = pdfBucketName;
+            key = fileUrlOrKey;
+        }
+
+        try {
+            return s3Client.getObject(builder -> builder.bucket(bucketName).key(key)).readAllBytes();
+        } catch (Exception e) {
+            logger.error("Error downloading file from S3: {}", e.getMessage());
+            throw new VocabAutomationException("Failed to download file from S3", e);
+        }
+    }
 }

@@ -12,6 +12,11 @@ package com.ashokvocab.vocab_automation.service.impl;
 
                 import java.io.ByteArrayOutputStream;
                 import java.util.List;
+                import com.itextpdf.kernel.pdf.PdfDocument;
+                import com.itextpdf.kernel.pdf.PdfReader;
+                import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
+                import java.io.ByteArrayInputStream;
+                import com.ashokvocab.vocab_automation.util.PdfUtil;
 
                 @Service
                 public class PdfService {
@@ -80,4 +85,41 @@ package com.ashokvocab.vocab_automation.service.impl;
                             throw new VocabAutomationException("Failed to generate PDF", e);
                         }
                     }
+
+                    // Add these methods to PdfService
+                    public String extractText(byte[] pdfBytes) {
+                        try (PdfReader reader = new PdfReader(new ByteArrayInputStream(pdfBytes))) {
+                            PdfDocument pdfDoc = new PdfDocument(reader);
+                            StringBuilder text = new StringBuilder();
+                            int numPages = pdfDoc.getNumberOfPages();
+                            for (int i = 1; i <= numPages; i++) {
+                                text.append(PdfTextExtractor.getTextFromPage(pdfDoc.getPage(i)));
+                                text.append("\n");
+                            }
+                            pdfDoc.close();
+                            return text.toString();
+                        } catch (Exception e) {
+                            throw new VocabAutomationException("Failed to extract text from PDF", e);
+                        }
+                    }
+
+                    public String extractSection(String pdfText, String sectionTitle) {
+                        String[] lines = pdfText.split("\\r?\\n");
+                        StringBuilder section = new StringBuilder();
+                        boolean inSection = false;
+                        for (String line : lines) {
+                            if (line.trim().equalsIgnoreCase(sectionTitle)) {
+                                inSection = true;
+                                continue;
+                            }
+                            if (inSection && line.matches("^[A-Za-z ]+Story$") && !line.trim().equalsIgnoreCase(sectionTitle)) {
+                                break;
+                            }
+                            if (inSection) {
+                                section.append(line).append("\n");
+                            }
+                        }
+                        return section.toString().trim();
+                    }
+
                 }

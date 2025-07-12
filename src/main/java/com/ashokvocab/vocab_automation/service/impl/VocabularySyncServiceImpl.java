@@ -1,7 +1,9 @@
 package com.ashokvocab.vocab_automation.service.impl;
 
     import com.ashokvocab.vocab_automation.dto.PaginatedVocabularyResponse;
+    import com.ashokvocab.vocab_automation.dto.TodayVocabularyResponse;
     import com.ashokvocab.vocab_automation.dto.VocabularyDTO;
+    import com.ashokvocab.vocab_automation.repository.DailyVocabBatchRepository;
     import com.ashokvocab.vocab_automation.repository.MasterVocabularyRepository;
     import com.ashokvocab.vocab_automation.service.*;
     import org.slf4j.Logger;
@@ -17,6 +19,8 @@ package com.ashokvocab.vocab_automation.service.impl;
     import org.springframework.data.domain.Page;
     import org.springframework.data.domain.PageRequest;
     import org.springframework.data.domain.Pageable;
+    import java.time.LocalDate;
+    import com.ashokvocab.vocab_automation.util.PdfUtil;
 
     @Service
     public class VocabularySyncServiceImpl implements VocabularySyncService {
@@ -29,10 +33,15 @@ package com.ashokvocab.vocab_automation.service.impl;
         private final PodcastVocabularyService podcastService;
         private final PersonalVocabularyService personalService;
         private final GeneralVocabularyService generalService;
+        private final S3Service s3Service;
         private static final Logger logger = LoggerFactory.getLogger(VocabularySyncServiceImpl.class);
 
         @Autowired
         private MasterVocabularyRepository masterVocabularyRepository;
+        @Autowired
+        private DailyVocabBatchRepository batchRepository;
+
+
 
         public VocabularySyncServiceImpl(
                 SoftwareVocabularyService softwareService,
@@ -42,7 +51,8 @@ package com.ashokvocab.vocab_automation.service.impl;
                 RacingVocabularyService racingService,
                 PodcastVocabularyService podcastService,
                 PersonalVocabularyService personalService,
-                GeneralVocabularyService generalService
+                GeneralVocabularyService generalService,
+                S3Service s3Service
         ) {
             this.softwareService = softwareService;
             this.stockmarketService = stockmarketService;
@@ -52,6 +62,7 @@ package com.ashokvocab.vocab_automation.service.impl;
             this.podcastService = podcastService;
             this.personalService = personalService;
             this.generalService = generalService;
+            this.s3Service = s3Service;
         }
 
 @Override
@@ -242,6 +253,37 @@ public void syncIndividualTablesFromDrive() {
         public List<MasterVocabulary> getAllWords() {
             return masterVocabularyRepository.findAll();
         }
+
+        @Override
+        public TodayVocabularyResponse getTodayVocabulary() {
+            String tableName = "software_vocabulary";
+            Optional<DailyVocabBatch> lastBatch = batchRepository.findFirstByTableNameOrderByRunDateDesc(tableName);
+
+            List<VocabularyDTO> vocabulary;
+            Map<String, String> stories = new HashMap<>();
+            String audioUrl = "";
+            String pdfUrl = "";
+
+            if (lastBatch.isPresent() && lastBatch.get().getRunDate().isEqual(LocalDate.now())) {
+                int offset = Math.max(0, lastBatch.get().getOffset().intValue() - 10);
+                vocabulary = getVocabularyByTable(tableName, offset, 10);
+
+                pdfUrl = lastBatch.get().getPdfUrl();
+                audioUrl = lastBatch.get().getAudioUrl();
+
+                // Download PDF from S3 and extract stories
+                byte[] pdfBytes = s3Service.downloadFile(pdfUrl);
+
+                String pdfText = PdfUtil.extractText(pdfBytes);
+                stories.put("generalStory", PdfUtil.extractSection(pdfText, "General Story"));
+                stories.put("softwareStory", PdfUtil.extractSection(pdfText, "Software Story"));
+            } else {
+                vocabulary = getVocabularyByTable(tableName, 0, 10);
+            }
+
+            return new TodayVocabularyResponse(vocabulary, stories, audioUrl, pdfUrl);
+        }
+
 
         @Override
         public PaginatedVocabularyResponse getAllWordsPaginated(int page, int size) {

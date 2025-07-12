@@ -1,5 +1,6 @@
 package com.ashokvocab.vocab_automation.controllers;
 
+import com.ashokvocab.vocab_automation.dto.TodayVocabularyResponse;
 import com.ashokvocab.vocab_automation.model.MasterVocabulary;
 import com.ashokvocab.vocab_automation.service.VocabularyProcessingService;
 import com.ashokvocab.vocab_automation.service.VocabularySyncService;
@@ -62,7 +63,7 @@ public class VocabController {
     @GetMapping("/today")
     public ResponseEntity<?> getTodaysVocabulary() {
         try {
-            List<VocabularyDTO> todaysVocabulary = vocabularySyncService.getVocabularyByTable("software_vocabulary", 0, 10);
+            TodayVocabularyResponse todaysVocabulary = vocabularySyncService.getTodayVocabulary();
             return ResponseEntity.ok(todaysVocabulary);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
