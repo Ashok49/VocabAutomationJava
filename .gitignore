@@ -39,4 +39,3 @@ application-dev.properties
 application-prod.properties
 service_account_key.json
 
-application.properties

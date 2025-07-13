@@ -1,6 +1,7 @@
 // src/main/java/com/ashokvocab/vocab_automation/controllers/GoogleAuthController.java
 package com.ashokvocab.vocab_automation.controllers;
 
+import com.ashokvocab.vocab_automation.service.impl.UserService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +14,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth/google")
@@ -31,6 +33,12 @@ public class GoogleAuthController {
     private String jwtSecret;
 
     private final RestTemplate restTemplate = new RestTemplate();
+
+    private final UserService userService;
+
+    public GoogleAuthController(UserService userService) {
+        this.userService = userService;
+    }
 
     // (Optional) Endpoint to generate Google OAuth2 URL
     @GetMapping("/login")
@@ -82,12 +90,18 @@ public class GoogleAuthController {
            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Failed to fetch user info");
        }
 
+       String googleUserId = (String) userInfo.getBody().get("id");
        String email = (String) userInfo.getBody().get("email");
        if (email == null) {
            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email not found in user info");
        }
 
        String username = (String) userInfo.getBody().get("name");
+       String picture = (String) userInfo.getBody().get("picture");
+
+       // Refactored: delegate to service
+       userService.saveUserIfNotExists(googleUserId, email, username, picture);
+
        SecretKey key = new SecretKeySpec(jwtSecret.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.HS256.getJcaName());
 
        String jwt = Jwts.builder()
