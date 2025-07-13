@@ -14,5 +14,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    - name: Build vocab-service Docker image
+      run: docker build vocab-service --file vocab-service/Dockerfile --tag vocab-service:$(date +%s)
+    - name: Build notification-service Docker image
+      run: docker build notification-service --file notification-service/Dockerfile --tag notification-service:$(date +%s)

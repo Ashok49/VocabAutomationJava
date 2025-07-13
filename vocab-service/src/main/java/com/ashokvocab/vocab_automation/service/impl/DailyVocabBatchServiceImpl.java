@@ -1,7 +1,8 @@
-package com.ashokvocab.vocab_automation.service;
+package com.ashokvocab.vocab_automation.service.impl;
 
 import com.ashokvocab.vocab_automation.model.DailyVocabBatch;
 import com.ashokvocab.vocab_automation.repository.DailyVocabBatchRepository;
+import com.ashokvocab.vocab_automation.service.DailyVocabBatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
