@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import com.ashokvocab.vocab_automation.dto.VocabularyDTO;
 import org.springframework.http.HttpStatus;
 import java.util.List;
+import java.util.Map;
+
 import com.ashokvocab.vocab_automation.dto.PaginatedVocabularyResponse;
 
 @RestController
@@ -36,9 +38,9 @@ public class VocabController {
     }
 
     @PostMapping("/sync-master")
-    public String syncMasterTable() {
+    public ResponseEntity<?> syncMasterTable() {
         vocabularySyncService.syncMasterTableFromIndividualTables();
-        return "Master table synced from individual tables";
+        return ResponseEntity.ok().body(Map.of("message", "Master table synced from individual tables"));
     }
 
     @GetMapping("/all")
