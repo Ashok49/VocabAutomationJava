@@ -94,7 +94,7 @@ public class GoogleAuthController {
                .setSubject(email)
                .claim("username", username)
                .setIssuedAt(new Date())
-               .setExpiration(new Date(System.currentTimeMillis() + 86400000)) // 1 day
+               .setExpiration(new Date(System.currentTimeMillis() + 3600000)) // 1 hour
                .signWith(key, SignatureAlgorithm.HS256)
                .compact();
 
