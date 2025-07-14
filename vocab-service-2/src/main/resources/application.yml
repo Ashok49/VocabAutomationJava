@@ -1,0 +1,84 @@
+twilio:
+  account-sid: ${TWILIO_ACCOUNT_SID}
+  auth-token: ${TWILIO_AUTH_TOKEN}
+  from-number: ${TWILIO_FROM_NUMBER}
+  to-number: ${TWILIO_TO_NUMBER}
+
+aws:
+  s3:
+    pdf-bucket-name: ${S3_PDF_BUCKET}
+    audio-bucket-name: ${S3_AUDIO_BUCKET}
+  access:
+    key:
+      id: ${AWS_ACCESS_KEY_ID}
+    secret:
+      access-key: ${AWS_SECRET_ACCESS_KEY}
+  region: us-east-1
+
+google:
+  key:
+    path: ${GOOGLE_KEY_PATH}
+  folder:
+    id: ${GOOGLE_FOLDER_ID}
+  client:
+    id: ${GOOGLE_CLIENT_ID}
+    secret: ${GOOGLE_CLIENT_SECRET}
+  redirect:
+    uri: ${GOOGLE_REDIRECT_URI}
+
+jwt:
+  secret: ${JWT_SECRET}
+
+spring:
+  application:
+    name: vocab-automation
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_SENDER}
+    password: ${GMAIL_APP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  kafka:
+    bootstrap-servers: pkc-619z3.us-east1.gcp.confluent.cloud:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: your-consumer-group-id
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+    properties:
+      security.protocol: SASL_SSL
+      sasl.mechanism: PLAIN
+      sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username='2K5TXFKBOJM2G2K6' password='e4A1Bvj7oXkZLC9UzNQgm5mvTEepxwrDlgSclyb8nN8kdqqSGQ9r4sfYnkrEKgaI';
+      client.dns.lookup: use_all_dns_ips
+      session.timeout.ms: 45000
+      acks: all
+      client.id: spring-kafka
+
+openai:
+  api:
+    key: ${OPENAI_API_KEY}
+    model: ${OPENAI_API_MODEL}
+
+vocab:
+  email:
+    recipients: ${RECIPIENT}

@@ -11,6 +11,7 @@
     <modules>
         <module>vocab-service</module>
         <module>notification-service</module>
+        <module>vocab-service-2</module>
         <!-- Add more modules here -->
     </modules>
 
