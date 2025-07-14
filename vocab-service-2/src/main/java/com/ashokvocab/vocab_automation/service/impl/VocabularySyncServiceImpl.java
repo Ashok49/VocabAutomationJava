@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import com.ashokvocab.vocab_automation.util.PdfUtil;
 import com.ashokvocab.vocab_automation.kafka.producer.KafkaJsonProducer;
 import com.ashokvocab.vocab_automation.dto.VocabBatchReadyDTO;
+import com.ashokvocab.vocab_automation.repository.UserRepository;
 
 @Service
 public class VocabularySyncServiceImpl implements VocabularySyncService {
@@ -37,12 +38,16 @@ public class VocabularySyncServiceImpl implements VocabularySyncService {
     private final GeneralVocabularyService generalService;
     private final S3Service s3Service;
     private final KafkaJsonProducer kafkaJsonProducer;
+
     private static final Logger logger = LoggerFactory.getLogger(VocabularySyncServiceImpl.class);
 
     @Autowired
     private MasterVocabularyRepository masterVocabularyRepository;
     @Autowired
     private DailyVocabBatchRepository batchRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
 
 
@@ -422,7 +427,12 @@ public boolean sendTodayBatchToKafka(String tableName) {
         Object principal = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userId = principal instanceof String ? (String) principal : null;
 
-        VocabBatchReadyDTO dto = new VocabBatchReadyDTO(audioUrl, pdfUrl, userId);
+        Optional<User> userOpt = userRepository.findByUserid(userId);
+        User user = userOpt.orElse(null);
+        String email = user != null ? user.getEmail() : null;
+        String phone = user != null ? user.getPhone() : null;
+
+        VocabBatchReadyDTO dto = new VocabBatchReadyDTO(audioUrl, pdfUrl, userId, email, phone);
         kafkaJsonProducer.sendJson("vocab.batch.ready", dto);
         logger.info("Sent audioUrl, pdfUrl, and userId to Kafka for table: {}", tableName);
         return true;
