@@ -164,6 +164,12 @@
 		    <artifactId>spring-kafka</artifactId>
 		</dependency>
 
+		<dependency>
+		    <groupId>com.ashokvocab</groupId>
+		    <artifactId>vocab-dto</artifactId>
+		    <version>1.0.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<repositories>

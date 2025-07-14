@@ -56,23 +56,18 @@ spring:
           starttls:
             enable: true
   kafka:
-    bootstrap-servers: pkc-619z3.us-east1.gcp.confluent.cloud:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-    consumer:
-      group-id: your-consumer-group-id
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      auto-offset-reset: earliest
     properties:
       security.protocol: SASL_SSL
       sasl.mechanism: PLAIN
-      sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username='2K5TXFKBOJM2G2K6' password='e4A1Bvj7oXkZLC9UzNQgm5mvTEepxwrDlgSclyb8nN8kdqqSGQ9r4sfYnkrEKgaI';
+      sasl.jaas.config: ${KAFKA_SASL_JAAS_CONFIG}
       client.dns.lookup: use_all_dns_ips
       session.timeout.ms: 45000
       acks: all
-      client.id: spring-kafka
+      client.id: spring-vocab-producer
 
 openai:
   api:

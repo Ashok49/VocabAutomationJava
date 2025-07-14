@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import com.ashokvocab.vocab_automation.util.PdfUtil;
 import com.ashokvocab.vocab_automation.kafka.producer.KafkaJsonProducer;
+import com.ashokvocab.vocab_automation.dto.VocabBatchReadyDTO;
 
 @Service
 public class VocabularySyncServiceImpl implements VocabularySyncService {
@@ -411,25 +412,24 @@ public void syncIndividualTablesFromDrive() {
      * @param tableName the vocabulary table name
      * @return true if batch was sent, false otherwise
      */
-    public boolean sendTodayBatchToKafka(String tableName) {
-        Optional<DailyVocabBatch> lastBatch = batchRepository.findFirstByTableNameOrderByRunDateDesc(tableName);
-        if (lastBatch.isPresent() && lastBatch.get().getRunDate().isEqual(LocalDate.now())) {
-            Map<String, String> result = new HashMap<>();
-            result.put("audioUrl", lastBatch.get().getAudioUrl());
-            result.put("pdfUrl", lastBatch.get().getPdfUrl());
-            // Get userId from SecurityContext
-            Object principal = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            String userId = principal instanceof String ? (String) principal : null;
-            if (userId != null) {
-                result.put("userId", userId);
-            }
-            kafkaJsonProducer.sendJson("vocab.batch.ready", result);
-            logger.info("Sent audioUrl, pdfUrl, and userId to Kafka for table: {}", tableName);
-            return true;
-        }
-        logger.info("No batch found for today in table: {}", tableName);
-        return false;
+// In VocabularySyncServiceImpl.java
+
+public boolean sendTodayBatchToKafka(String tableName) {
+    Optional<DailyVocabBatch> lastBatch = batchRepository.findFirstByTableNameOrderByRunDateDesc(tableName);
+    if (lastBatch.isPresent() && lastBatch.get().getRunDate().isEqual(LocalDate.now())) {
+        String audioUrl = lastBatch.get().getAudioUrl();
+        String pdfUrl = lastBatch.get().getPdfUrl();
+        Object principal = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userId = principal instanceof String ? (String) principal : null;
+
+        VocabBatchReadyDTO dto = new VocabBatchReadyDTO(audioUrl, pdfUrl, userId);
+        kafkaJsonProducer.sendJson("vocab.batch.ready", dto);
+        logger.info("Sent audioUrl, pdfUrl, and userId to Kafka for table: {}", tableName);
+        return true;
     }
+    logger.info("No batch found for today in table: {}", tableName);
+    return false;
+}
 
     //Get 10 words given a table name.. find the offset value frm prev day...
     //Check if the words are already delivered today.. if delivered check the run table (SELECT * FROM public.daily_vocab_batches
