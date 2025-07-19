@@ -6,14 +6,15 @@ WORKDIR /app
 COPY ../vocab-dto /app/vocab-dto
 RUN cd vocab-dto && mvn clean install -DskipTests
 
-# Copy vocab-service-2 source and build it
-COPY . /app/vocab-service-2
-WORKDIR /app/vocab-service-2
+# Copy notification-service source and build it
+COPY . /app/notification-service
+WORKDIR /app/notification-service
 RUN mvn clean package -DskipTests
 
 # Run stage
 FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
-COPY --from=build /app/vocab-service-2/target/vocab-automation-java-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /app/notification-service/target/notification-service-1.0-SNAPSHOT.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
