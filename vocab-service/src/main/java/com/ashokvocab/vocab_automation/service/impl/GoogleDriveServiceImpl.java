@@ -37,8 +37,8 @@ package com.ashokvocab.vocab_automation.service.impl;
         @PostConstruct
         public void init() {
             try {
-                //InputStream in = new FileInputStream(credentialPath);
-                InputStream in = getClass().getClassLoader().getResourceAsStream(credentialPath);
+                InputStream in = new FileInputStream(credentialPath);
+                //InputStream in = getClass().getClassLoader().getResourceAsStream(credentialPath);
                 GoogleCredentials credentials = GoogleCredentials.fromStream(in)
                         .createScoped(List.of("https://www.googleapis.com/auth/drive.readonly"));
                 driveService = new Drive.Builder(
