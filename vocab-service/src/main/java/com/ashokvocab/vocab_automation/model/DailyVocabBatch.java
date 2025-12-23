@@ -2,10 +2,14 @@ package com.ashokvocab.vocab_automation.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Entity
 @Table(name = "daily_vocab_batches")
 public class DailyVocabBatch {
+    private static final Logger logger = LoggerFactory.getLogger(DailyVocabBatch.class);
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -85,6 +89,20 @@ public class DailyVocabBatch {
 
     public void setOffset(Long offset) {
         this.offset = offset;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        // Ensure runDate is always set before insert and log the entity state to prove the hypothesis
+        if (this.runDate == null) {
+            this.runDate = LocalDate.now();
+            logger.info("@PrePersist set runDate to {} for tableName={}", this.runDate, this.tableName);
+        } else {
+            logger.info("@PrePersist found existing runDate={} for tableName={}", this.runDate, this.tableName);
+        }
+
+        logger.debug("@PrePersist DailyVocabBatch about to persist: id={} tableName={} runDate={} offset={} pdfUrlPresent={} audioUrlPresent={} wordsJsonLength={}",
+                this.id, this.tableName, this.runDate, this.offset, this.pdfUrl != null && !this.pdfUrl.isEmpty(), this.audioUrl != null && !this.audioUrl.isEmpty(), this.wordsJson != null ? this.wordsJson.length() : 0);
     }
 
     private int getLastOffset(DailyVocabBatch batch) {
