@@ -256,7 +256,7 @@ public void syncIndividualTablesFromDrive() {
 
         @Override
         public TodayVocabularyResponse getTodayVocabulary() {
-            String tableName = "software_vocabulary";
+            String tableName = "racing_vocabulary";
             Optional<DailyVocabBatch> lastBatch = batchRepository.findFirstByTableNameOrderByRunDateDesc(tableName);
 
             List<VocabularyDTO> vocabulary;
