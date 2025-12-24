@@ -148,7 +148,7 @@ public class VocabularyProcessingServiceImpl implements VocabularyProcessingServ
          );
 
         logger.info("processExistingBatch - deserialized {} words from batch id={}", words.size(), batch.getId());
-         emailService.sendVocabularyEmail(words, pdfUrl);
+         //emailService.sendVocabularyEmail(words, pdfUrl);
 
          if (audioUrl != null && !audioUrl.isEmpty()) {
              twilioService.makeCall(audioUrl);
